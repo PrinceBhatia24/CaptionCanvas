@@ -1,7 +1,7 @@
 import React from 'react'
 
 export default function Cards({ Data, handleImageClick }) {
-
+    
     return (
         <div className="card">
             <div className="card-img-container">

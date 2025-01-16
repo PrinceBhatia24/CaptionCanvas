@@ -16,7 +16,7 @@ export default function Pagination({ handlePreviousPage, handleNextPage, current
             </button>
             <span>Page {currentPage} of {Math.ceil(TotalImages / imagesPerPage)}</span>
             <button
-                className="btn btn-outline-primary"
+                className="btn btn-outline-primary "
                 onClick={handleNextPage}
                 disabled={currentPage === Math.ceil(TotalImages / imagesPerPage)}
             >

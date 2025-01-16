@@ -17,24 +17,22 @@ import Cards from '../Components/Cards';
 import Pagination from '../Components/Pagination';
 import Search from '../Components/Search';
 
-
-
 export default function Homepage() {
 
-    const [search, setSearch] = useState("Random");
+    const [search, setSearch] = useState("AI");
     const canvasRef = useRef();
     const imagesPerPage = window.config.ImagePerPage;
 
-
     const [state, setState] = useState({
         TotalImages: "",
-        images: ["Image 1", "Image 2", "Image 3", "Image 4", "Image 5", "Image 6", "Image 7", "Image 8"],
+        images: [],
         currentPage: 1,
         selectedImage: null,
         selectedShape: '',
         canvas: null,
         show: false,
-        captionText: ""
+        captionText: "",
+        loading: false,
     });
 
     //Modal Open/Close
@@ -49,38 +47,70 @@ export default function Homepage() {
     }));
 
     const handleImageClick = async (imageUrl) => {
-        
-        handleShow()
-        setState(prevState => ({
+        handleShow();
+        setState((prevState) => ({
             ...prevState,
-            selectedImage: imageUrl
+            selectedImage: imageUrl,
+
         }));
-        // setState.selectedImage = imageUrl;
 
-        if (state.canvas) {
-            console.log("handleImageClick triggered for URL:", imageUrl);
+        console.log("handleImageClick triggered for URL:", imageUrl);
 
-            try {
-                const Image = new FabricImage(imageUrl, {
-                    left: 10,
-                    top: 10,
-                    scaleX: 0.5,
-                    scaleY: 0.5,
-                });
-                canvas.clear();
-                canvas.add(Image);;
-                canvas.setActiveObject(Image);
-                canvas.renderAll();
-                console.log("Image successfully added and canvas updated.");
-            } catch (error) {
-                console.error("Error while handling the image click:", error);
+        try {
+            if (!FabricImage) {
+                console.error("FabricImage is not defined. Ensure you have imported it correctly.");
+                return;
             }
-        } else {
-            console.log("Canvas not available");
+
+            if (!imageUrl) {
+                console.error("Image URL is not provided.");
+                return;
+            }
+
+            if (!state.canvas) {
+                console.error("Canvas instance is not available.");
+                return;
+            }
+
+            console.log("Loading image from URL:", imageUrl);
+
+            const imgElement = new Image();
+            imgElement.crossOrigin = "anonymous";
+            imgElement.src = imageUrl;
+
+            imgElement.onload = () => {
+                console.log("Image element loaded:", imgElement);
+
+                try {
+                    const fabricImage = new FabricImage(imgElement, {
+                        left: 10,
+                        top: 10,
+                        scaleX: 0.5,
+                        scaleY: 0.5,
+                    });
+
+                    console.log("FabricImage object created:", fabricImage);
+
+                    state.canvas.add(fabricImage);
+                    state.canvas.setActiveObject(fabricImage);
+                    state.canvas.renderAll();
+
+                    console.log("Image successfully added and canvas updated.");
+
+
+                } catch (error) {
+                    console.error("Error adding image to canvas:", error);
+                }
+            };
+
+            imgElement.onerror = (error) => {
+                console.error("Failed to load image:", error);
+            };
+        } catch (error) {
+            console.error("An error occurred while handling the image click:", error);
         }
-
-
     };
+
 
     //Utilities
     const handleAddCaption = () => {
@@ -176,7 +206,10 @@ export default function Homepage() {
 
     //SearchHandle
     const SearchHandle = async () => {
-
+        setState(prev => ({
+            ...prev,
+            loading: true,
+        }))
         try {
             const client = createClient(window.config.API_KEY);
             const response = await client.photos.search({
@@ -186,12 +219,20 @@ export default function Homepage() {
             });
 
             // console.log(response);
+            if (search == "") {
+                console.log("working");
 
-            setState(prevState => ({
-                ...prevState,
-                images: response.photos,
-                TotalImages: response.total_results
-            }));
+            }
+            else {
+                setState(prevState => ({
+                    ...prevState,
+                    images: response.photos,
+                    TotalImages: response.total_results,
+                    loading: false
+                }));
+            }
+
+
 
         } catch (error) {
             console.error("Error Fetching Image", error);
@@ -237,7 +278,15 @@ export default function Homepage() {
 
     //Initial API Call
     useEffect(() => {
-        SearchHandle();
+        if (search === "") {
+            setState(prev => ({
+                ...prev,
+                images: ["image1", "image2", "image3", "image4", "image5", "image6", "image7", "image8",],
+            }))
+        }
+        else {
+            SearchHandle();
+        }
     }, [state.currentPage, search]);
 
     //Create canvas
@@ -253,9 +302,33 @@ export default function Homepage() {
             ...prevState,
             canvas: newCanvas
         }));
+
+        // const canvas = canvasRef.current;
+
+        // if (canvas) {
+        //     const ctx = canvas.getContext('2d');
+
+        //     const img = new Image();
+        //     img.src = state.selectedImage;  
+
+        //     img.onload = () => {
+
+        //         canvas.width = img.width;
+        //         canvas.height = img.height;
+        //         ctx.drawImage(img, 0, 0);
+        //     };
+
+        //     img.onerror = (error) => {
+        //         console.error("Error loading image:", error);
+        //     };
+        // } else {
+        //     console.error("Canvas element is not available.");
+        // }
+
         return () => {
             newCanvas.dispose();
         };
+
 
     }, [state.show]);
 
@@ -289,10 +362,12 @@ export default function Homepage() {
         }
     }, [state.captionText, state.canvas]);
 
+
+
     return (
         <>
-            <div className='container border borderradius'>
-                <p className='my-3'>Caption Canvas</p>
+            <div className='container-fluid border borderradius'>
+                <h5 className='my-3 '>Caption Canvas</h5>
 
                 {/* Search */}
                 <Search setSearch={setSearch} search={search} setCurrentPage={state.currentPage} />
@@ -300,11 +375,15 @@ export default function Homepage() {
 
                 {/* Photo Grid */}
                 <div className="row">
-                    {state.images.map((image, index) => (
+                    {state.loading ? (<div className="col-12 text-center">
+                        <div className="spinner-border" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </div>
+                    </div>) : (state.images.map((image, index) => (
                         <div className="col-lg-3 col-md-4 col-sm-6 col-12 mb-3" key={image.id}>
                             <Cards Data={image} handleImageClick={handleImageClick} />
                         </div>
-                    ))}
+                    )))}
                 </div>
 
                 {/* pagination */}
@@ -328,7 +407,7 @@ export default function Homepage() {
                                         ...prevState,
                                         captionText: e.target.value
                                     }))} />
-                                    <button className="btn btn-sm btn-success" onClick={handleAddCaption}>Add</button>
+                                    <button className="btn btn-sm btn-primary" onClick={handleAddCaption}>Add</button>
                                 </Form.Group>
                                 <Form.Select aria-label="Select Shape" value={state.selectedShape}
                                     onChange={(e) => { handleShapeChange(e.target.value) }}>
@@ -360,8 +439,6 @@ export default function Homepage() {
                     </Modal.Footer>
                 </Modal>
             </div>
-
-
         </>
     )
 }
