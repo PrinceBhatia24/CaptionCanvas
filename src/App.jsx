@@ -6,7 +6,7 @@ function App() {
 
   return (
     <>
-      <p className='text-white position-relative'>hhg</p>
+      {/* <p className='text-white position-relative'>hhg</p> */}
       <Homepage />
     </>
   )
