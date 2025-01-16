@@ -16,7 +16,7 @@ import { FaCloudDownloadAlt } from "react-icons/fa";
 import Cards from '../Components/Cards';
 import Pagination from '../Components/Pagination';
 import Search from '../Components/Search';
-// 
+
 
 
 export default function Homepage() {
