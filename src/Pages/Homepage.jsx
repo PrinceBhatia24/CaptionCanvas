@@ -211,6 +211,10 @@ export default function Homepage() {
             loading: true,
         }))
         try {
+            if (!search.trim()) {
+                console.log("Search query is empty");
+                return;
+            }
             const client = createClient(window.config.API_KEY);
             const response = await client.photos.search({
                 query: search,
@@ -219,18 +223,13 @@ export default function Homepage() {
             });
 
             // console.log(response);
-            if (search == "") {
-                console.log("working");
+            setState(prevState => ({
+                ...prevState,
+                images: response.photos,
+                TotalImages: response.total_results,
+                loading: false
+            }));
 
-            }
-            else {
-                setState(prevState => ({
-                    ...prevState,
-                    images: response.photos,
-                    TotalImages: response.total_results,
-                    loading: false
-                }));
-            }
 
 
 
