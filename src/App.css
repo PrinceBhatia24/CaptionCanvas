@@ -51,7 +51,7 @@
 
 .canvas-container {
   width: 100% !important;
-  background-color: #f0f0f0 !important;
+  background-color: transparent!important;
   border-radius: 10px;
 }
 
@@ -284,4 +284,9 @@
   animation-iteration-count: infinite;
   -webkit-animation-timing-function: cubic-bezier(0.1, 0, 0.9, 1);
   animation-timing-function: cubic-bezier(0.1, 0, 0.9, 1);
+}
+canvas {
+  display: block;
+  width: 100%; /* or any specific width */
+  height: 100%; /* or any specific height */
 }

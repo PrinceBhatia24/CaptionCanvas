@@ -19,7 +19,7 @@ import Search from '../Components/Search';
 export default function Homepage() {
 
     const [search, setSearch] = useState("AI");
-    const canvasRef = useRef();
+    const canvasRef = useRef(null);
     const imagesPerPage = window.config.ImagePerPage;
 
     const [state, setState] = useState({
@@ -53,61 +53,59 @@ export default function Homepage() {
 
         }));
 
-        console.log("handleImageClick triggered for URL:", imageUrl);
+        // try {
+        //     if (!FabricImage) {
+        //         console.error("FabricImage is not defined. Ensure you have imported it correctly.");
+        //         return;
+        //     }
 
-        try {
-            if (!FabricImage) {
-                console.error("FabricImage is not defined. Ensure you have imported it correctly.");
-                return;
-            }
+        //     if (!imageUrl) {
+        //         console.error("Image URL is not provided.");
+        //         return;
+        //     }
 
-            if (!imageUrl) {
-                console.error("Image URL is not provided.");
-                return;
-            }
+        //     if (!state.canvas) {
+        //         console.error("Canvas instance is not available.");
+        //         return;
+        //     }
 
-            if (!state.canvas) {
-                console.error("Canvas instance is not available.");
-                return;
-            }
+        //     console.log("Loading image from URL:", imageUrl);
 
-            console.log("Loading image from URL:", imageUrl);
+        //     const imgElement = new Image();
+        //     imgElement.crossOrigin = "anonymous";
+        //     imgElement.src = imageUrl;
 
-            const imgElement = new Image();
-            imgElement.crossOrigin = "anonymous";
-            imgElement.src = imageUrl;
+        //     imgElement.onload = () => {
+        //         console.log("Image element loaded:", imgElement);
 
-            imgElement.onload = () => {
-                console.log("Image element loaded:", imgElement);
+        //         try {
+        //             const fabricImage = new FabricImage(imgElement, {
+        //                 left: 10,
+        //                 top: 10,
+        //                 scaleX: 0.5,
+        //                 scaleY: 0.5,
+        //             });
 
-                try {
-                    const fabricImage = new FabricImage(imgElement, {
-                        left: 10,
-                        top: 10,
-                        scaleX: 0.5,
-                        scaleY: 0.5,
-                    });
+        //             console.log("FabricImage object created:", fabricImage);
 
-                    console.log("FabricImage object created:", fabricImage);
+        //             state.canvas.add(fabricImage);
+        //             state.canvas.setActiveObject(fabricImage);
+        //             state.canvas.renderAll();
 
-                    state.canvas.add(fabricImage);
-                    state.canvas.setActiveObject(fabricImage);
-                    state.canvas.renderAll();
-
-                    console.log("Image successfully added and canvas updated.");
+        //             console.log("Image successfully added and canvas updated.");
 
 
-                } catch (error) {
-                    console.error("Error adding image to canvas:", error);
-                }
-            };
+        //         } catch (error) {
+        //             console.error("Error adding image to canvas:", error);
+        //         }
+        //     };
 
-            imgElement.onerror = (error) => {
-                console.error("Failed to load image:", error);
-            };
-        } catch (error) {
-            console.error("An error occurred while handling the image click:", error);
-        }
+        //     imgElement.onerror = (error) => {
+        //         console.error("Failed to load image:", error);
+        //     };
+        // } catch (error) {
+        //     console.error("An error occurred while handling the image click:", error);
+        // }
     };
 
 
@@ -118,7 +116,7 @@ export default function Homepage() {
             return;
         }
         if (!state.captionText.trim()) {
-            alert("Please enter a caption.");
+            alert("Please enter  caption.");
             return;
         }
         const text = new fabric.Textbox(state.captionText, {
@@ -126,12 +124,12 @@ export default function Homepage() {
             top: 10,
             fontSize: 20,
             fill: 'black',
+            fontFamily: 'sans-serif',
             width: 200
         });
 
         state.canvas.add(text);
         state.canvas.renderAll();
-        // setState.captionText("");
         setState(prevState => ({
             ...prevState,
             captionText: ""
@@ -139,7 +137,6 @@ export default function Homepage() {
     };
 
     const handleShapeChange = (shapeType) => {
-
         if (state.canvas) {
             let shape;
             switch (shapeType) {
@@ -195,13 +192,13 @@ export default function Homepage() {
                 default:
                     console.error("Unknown", shapeType);
             }
+
             if (shape) {
                 state.canvas.add(shape);
                 state.canvas.setActiveObject(shape);
             }
         }
     };
-
 
     //SearchHandle
     const SearchHandle = async () => {
@@ -214,7 +211,7 @@ export default function Homepage() {
                 console.log("Search query is empty");
                 return;
             }
-            
+
             const response = await fetch(`https://api.pexels.com/v1/search?query=${search}&per_page=${imagesPerPage}&page=${state.currentPage}`, {
                 method: 'GET',
                 headers: {
@@ -242,7 +239,6 @@ export default function Homepage() {
     //Pagination
     const handleNextPage = () => {
         if (state.currentPage < Math.ceil(state.TotalImages / imagesPerPage)) {
-            // setState.currentPage = state.currentPage + 1;
             setState(prevState => ({
                 ...prevState,
                 currentPage: prevState.currentPage + 1
@@ -256,7 +252,6 @@ export default function Homepage() {
                 ...prevState,
                 currentPage: prevState.currentPage - 1
             }));
-            // setState.currentPage = state.currentPage - 1;
         }
     };
 
@@ -291,46 +286,81 @@ export default function Homepage() {
 
     //Create canvas
     useEffect(() => {
-        // console.log("useEffect triggered");
         const newCanvas = new fabric.Canvas(canvasRef.current, {
             height: 400,
-            backgroundColor: '#f0f0f0',
         });
-        // console.log("initialized:", newCanvas);  
-        // setState.canvas = newCanvas;
         setState(prevState => ({
             ...prevState,
             canvas: newCanvas
         }));
+        const canvas = canvasRef.current;
 
-        // const canvas = canvasRef.current;
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
 
-        // if (canvas) {
-        //     const ctx = canvas.getContext('2d');
+            const img = new Image();
+            img.src = state.selectedImage;
 
-        //     const img = new Image();
-        //     img.src = state.selectedImage;  
+            img.onload = () => {
 
-        //     img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+            };
 
-        //         canvas.width = img.width;
-        //         canvas.height = img.height;
-        //         ctx.drawImage(img, 0, 0);
-        //     };
 
-        //     img.onerror = (error) => {
-        //         console.error("Error loading image:", error);
-        //     };
-        // } else {
-        //     console.error("Canvas element is not available.");
-        // }
+            img.onerror = (error) => {
+                console.error("Error loading image:", error);
+            };
+        } else {
+            // console.error("Canvas element is not available.");
+        }
 
         return () => {
             newCanvas.dispose();
         };
 
+    }, [state.show,]);
 
-    }, [state.show]);
+
+
+    // useEffect(() => {
+    //     console.log('Canvas:', state.canvas);
+    //     console.log('Selected Image URL:', state.selectedImage);
+
+    //     if (state.canvas && state.selectedImage) {
+    //         const canvas = state.canvas;
+    //         const img = new Image();
+    //         img.src = state.selectedImage;
+
+    //         console.log('Image Source:', img.src);
+
+    //         img.onload = () => {
+    //             console.log('Image Loaded Successfully');
+
+    //             // Create a fabric image from the loaded image
+    //             const fabricImage = new fabric.Image(img, {
+    //                 scaleX: canvas.width / img.width,
+    //                 scaleY: canvas.height / img.height,
+    //             });
+
+    //             // Set the fabric image as the background using backgroundImage
+    //             canvas.backgroundImage = fabricImage;
+    //             canvas.renderAll();
+
+
+    //             console.log("Image successfully added as background.");
+
+    //         };
+
+    //         img.onerror = (error) => {
+    //             console.error("Error loading image:", error);
+    //         };
+    //     } else {
+    //         console.log('Canvas or Image URL is not available');
+    //     }
+    // }, [state.show, state.selectedImage]);
+
 
     //Select Canvas Object
     useEffect(() => {
