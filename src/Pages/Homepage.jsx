@@ -1,6 +1,5 @@
 // Packages
 import React, { useState, useEffect, useRef } from 'react'
-import { createClient } from "pexels";
 import * as fabric from 'fabric';
 import { FabricImage } from 'fabric';
 
@@ -215,18 +214,20 @@ export default function Homepage() {
                 console.log("Search query is empty");
                 return;
             }
-            const client = createClient(window.config.API_KEY);
-            const response = await client.photos.search({
-                query: search,
-                per_page: imagesPerPage,
-                page: state.currentPage,
+            
+            const response = await fetch(`https://api.pexels.com/v1/search?query=${search}&per_page=${imagesPerPage}&page=${state.currentPage}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': window.config.API_KEY,
+                }
             });
+            const data = await response.json();
+            // console.log(data);
 
-            // console.log(response);
             setState(prevState => ({
                 ...prevState,
-                images: response.photos,
-                TotalImages: response.total_results,
+                images: data.photos,
+                TotalImages: data.total_results,
                 loading: false
             }));
 
@@ -234,7 +235,7 @@ export default function Homepage() {
 
 
         } catch (error) {
-            console.error("Error Fetching Image", error);
+            console.error("Error", error);
         }
     };
 
