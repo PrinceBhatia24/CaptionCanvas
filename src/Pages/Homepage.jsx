@@ -28,9 +28,9 @@ export default function Homepage() {
         currentPage: 1,
         selectedImage: null,
         selectedShape: '',
+        captionText: "",
         canvas: null,
         show: false,
-        captionText: "",
         loading: false,
     });
 
