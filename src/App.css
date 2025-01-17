@@ -37,7 +37,7 @@
 
 @media (min-width: 576px) {
   .modal-dialog {
-    max-width: 860px !important;
+    max-width: 1023px !important;
   }
 }
 
@@ -53,6 +53,7 @@
   width: 100% !important;
   background-color: transparent!important;
   border-radius: 10px;
+  border: 1px dotted black;
 }
 
 .btn-secondary {

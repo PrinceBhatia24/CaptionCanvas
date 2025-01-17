@@ -10,6 +10,11 @@ import Form from 'react-bootstrap/Form';
 //Icons
 import { MdDelete } from "react-icons/md";
 import { FaCloudDownloadAlt } from "react-icons/fa";
+import { FaRegCircle } from "react-icons/fa6";
+import { RiRectangleLine } from "react-icons/ri";
+import { IoTriangleOutline } from "react-icons/io5";
+import { BiPolygon } from "react-icons/bi";
+
 
 //Components
 import Cards from '../Components/Cards';
@@ -137,6 +142,8 @@ export default function Homepage() {
     };
 
     const handleShapeChange = (shapeType) => {
+        
+        
         if (state.canvas) {
             let shape;
             switch (shapeType) {
@@ -359,6 +366,7 @@ export default function Homepage() {
     //     } else {
     //         console.log('Canvas or Image URL is not available');
     //     }
+
     // }, [state.show, state.selectedImage]);
 
 
@@ -382,6 +390,7 @@ export default function Homepage() {
             });
         }
     }, [state.canvas]);
+
 
     //Update Caption
     useEffect(() => {
@@ -428,29 +437,45 @@ export default function Homepage() {
                     <Modal.Body>
                         <div className='row'>
                             <div className='col-lg-6 col-md-12 col-sm-12 my-1'>
-                                <canvas ref={canvasRef}></canvas>
+                                <canvas crossOrigin="anonymous" id="fCanvas" ref={canvasRef}></canvas>
                             </div>
                             <div className='col-lg-6 col-md-12 col-sm-12 my-1 '>
 
                                 <Form.Group className="mb-3 d-flex" controlId="formBasicPassword">
+                                <h5 className='my-0 mx-3 justify-content-center d-flex align-items-center'>Caption:</h5>
                                     <Form.Control type="text" placeholder="Enter caption" value={state.captionText} onChange={(e) => setState(prevState => ({
                                         ...prevState,
                                         captionText: e.target.value
                                     }))} />
                                     <button className="btn btn-sm btn-primary" onClick={handleAddCaption}>Add</button>
                                 </Form.Group>
-                                <Form.Select aria-label="Select Shape" value={state.selectedShape}
+                                <div className='d-flex'>
+                                    <h5 className='my-0 mx-3 justify-content-center d-flex align-items-center'>Shapes:</h5>
+                                    <button className="btn btn-dark my-2 mx-1  justify-content-end" onClick={() => { handleShapeChange("Rectangle") }}><RiRectangleLine  />
+
+                                    </button>
+                                    <button className="btn btn-dark my-2 mx-1  justify-content-end" onClick={() => { handleShapeChange("Circle") }}><FaRegCircle />
+                                    </button>
+                                    <button className="btn btn-dark my-2 mx-1  justify-content-end" onClick={() => { handleShapeChange("Triangle") }}><IoTriangleOutline />
+                                    </button>
+                                    <button className="btn btn-dark my-2 mx-1  justify-content-end" onClick={() => { handleShapeChange("Polygon") }}><BiPolygon />
+                                    </button>
+                                </div>
+                                
+                                {/* <Form.Select aria-label="Select Shape" value={state.selectedShape}
                                     onChange={(e) => { handleShapeChange(e.target.value) }}>
                                     <option>Select Shape</option>
                                     <option value="Rectangle">Rectangle</option>
                                     <option value="Circle">Circle</option>
                                     <option value="Triangle">Triangle</option>
                                     <option value="Polygon">Polygon</option>
-                                </Form.Select>
+                                </Form.Select> */}
                                 <div className='row justify-content-end'>
                                     <div className='col-6 justify-content-end d-flex'>
 
-                                        <button className="btn btn-danger mt-3 justify-content-end" onClick={handleDelete}><MdDelete />
+                                        <button className="btn btn-danger mt-3 justify-content-end" onClick={handleDelete}>
+                                            {/* <MdDelete /> */}
+                                            Delete
                                         </button>
                                     </div>
                                 </div>
